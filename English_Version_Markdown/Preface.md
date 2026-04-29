@@ -1,0 +1,37 @@
+# Preface
+
+<div align="justify">
+
+In 2006 I was working at ThoughtWorks, in the UK. There was a certain energy to the office at that time, with lots of interesting things going on. The Agile movement was in full bloom, BDD (behavior-driven development) was flourish‐ ing, people were experimenting with Event Sourcing, and SOA (service-oriented architecture) was being adapted to smaller projects to deal with some of the issues we’d seen in larger implementations.
+
+One project I worked on was led by Dave Farley, an energetic and cheerful fellow who managed to transfer his jovial bluster into pretty much everything we did. The project was a relatively standard, medium-sized enterprise application. It had a web portal where customers could request a variety of conveyancing serv‐ ices. The system would then run various synchronous and asynchronous pro‐ cesses to put the myriad of services they requested into action.
+
+There were a number of interesting elements to that particular project, but the one that really stuck with me was the way the services communicated. It was the first system I’d worked on that was built solely from a collaboration of events. Having worked with a few different service-based systems before, all built with RPCs (remote procedure calls) or request-response messaging, I thought this one felt very different. There was something inherently spritely about the way you could plug new services right into the event stream, and something deeply satis‐ fying about tailing the log of events and watching the “narrative” of the system whizz past.
+
+A few years later, I was working at a large financial institution that wanted to build a data service at the heart of the company, somewhere applications could find the important datasets that made the bank work—trades, valuations, refer‐ ence data, and the like. I find this sort of problem quite compelling: it was techni‐ cally challenging and, although a number of banks and other large companies had taken this kind of approach before, it felt like the technology had moved on to a point where we could build something really interesting and transformative.
+
+Yet getting the technology right was only the start of the problem. The system had to interface with every major department, and that meant a lot of stakehold‐ ers with a lot of requirements, a lot of different release schedules, and a lot of expectations around uptime. I remember discussing the practicalities of the project as we talked our design through in a two-week stakeholder kick-off meet‐ ing. It seemed a pretty tall order, not just technically, but organizationally, but it also seemed plausible.
+
+So we pulled together a team, with a bunch of people from ThoughtWorks and Google and a few other places, and the resulting system had some pretty interest‐ ing properties. The datastore held queryable data in memory, spread over 35 machines per datacenter, so it could handle being hit from a compute grid. Writes went directly through the query layer into a messaging system, which formed (somewhat unusually for the time) the system of record. Both the query layer and the messaging layer were designed to be sharded so they could scale linearly. So every insert or update was also a published event, and there was no side-stepping it either; it was baked into the heart of the architecture.
+
+The interesting thing about making messaging the system of record is you find yourself repurposing the data stream to do a whole variety of useful things: recording it on a filesystem for recovery, pushing it to another datacenter, hyd‐ rating a set of databases for reporting and analytics, and, of course, broadcasting it to anyone with the API who wants to listen.
+
+But the real importance of using messaging as a system of record evaded me somewhat at the time. I remember speaking about the project at QCon, and there were more questions about the lone “messaging as a system of record” slide, which I’d largely glossed over, than there were about the fancy distributed join layer that the talk had focused on. So it slowly became apparent that, for all its features—the data-driven precaching that made joins fast, the SQL-over- Document interface, the immutable data model, and late-bound schema—what most customers needed was really subtly different, and somewhat simpler. While they would start off making use of the data service directly, as time passed, some requirement would often lead them to take a copy, store it independently, and do their own thing. But despite this, they still found the central dataset useful and would often take a subset, then later come back for more. So, on reflection, it seemed that a messaging system optimized to hold datasets would be more appropriate than a database optimized to publish them. A little while later Con‐ fluent formed, and Kafka seemed a perfect solution for this type of problem.
+
+The interesting thing about these two experiences (the conveyancing application and the bank-wide data service) is that they are more closely related than they may initially appear. The conveyancing application had been wonderfully collab‐ orative, yet pluggable. At the bank, a much larger set of applications and services integrated through events, but also leveraged a historic reference they could go back to and query. So the contexts were quite different—the first was a single application, the second a company—but much of the elegance of both systems came from their use of events.
+
+Streaming systems today are in many ways quite different from both of these examples, but the underlying patterns haven’t really changed all that much. Nev‐ ertheless, the devil is in the details, and over the last few years we’ve seen clients take a variety of approaches to solving both of these kinds of problems, along with many others. Problems that both distributed logs and stream processing tools are well suited to, and I’ve tried to extract the key elements of these approaches in this short book.
+
+
+## How to Read This Book
+
+The book is arranged into five sections. Part I sets the scene, with chapters that introduce Kafka and stream processing and should provide even seasoned practi‐ tioners with a useful overview of the base concepts. In Part II you’ll find out how to build event-driven systems, how such systems relate to stateful stream pro‐ cessing, and how to apply patterns like Event Collaboration, Event Sourcing, and CQRS. Part III is more conceptual, building on the ideas from Part II, but apply‐ ing them at the level of whole organizations. Here we question many of the com‐ mon approaches used today, and dig into patterns like event streams as a source of truth. Part IV and Part V are more practical. Part V starts to dip into a little code, and there is an associated GitHub project to help you get started if you want to build fine-grained services with Kafka Streams.
+
+The introduction given in Chapter 1 provides a high-level overview of the main concepts covered in this book, so it is a good place to start.
+
+
+## Acknowledgements
+
+Many people contributed to this book, both directly and indirectly, but a special thanks to Jay Kreps, Sam Newman, Edward Ribeiro, Gwen Shapira, Steve Coun‐ sell, Martin Kleppmann, Yeva Byzek, Dan Hanley, Tim Bergland, and of course my ever-patient wife, Emily.
+
+</div>
