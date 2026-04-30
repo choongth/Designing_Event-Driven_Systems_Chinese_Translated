@@ -2,8 +2,12 @@
 
 <div align="justify">
 
+<br>
+
 The truth is the log.
 
---Pat Helland, "Immutability Changes Everything," 2015
+<br>
+
+&emsp; &emsp; —Pat Helland, "Immutability Changes Everything," 2015
 
 </div>

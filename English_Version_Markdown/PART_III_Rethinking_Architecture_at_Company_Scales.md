@@ -2,9 +2,15 @@
 
 <div align="justify">
 
+<br>
+
 If you squint a bit, you can see the whole of your organization's systems and data flows as a single distributed database.
 
---Jay Kreps, 2013
+<br>
+
+&emsp; &emsp; —Jay Kreps, 2013
+
+<br>
 
 <div align="center">
 

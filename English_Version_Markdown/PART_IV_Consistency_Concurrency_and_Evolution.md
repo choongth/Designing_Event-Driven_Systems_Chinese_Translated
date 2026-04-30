@@ -2,8 +2,12 @@
 
 <div align="justify">
 
+<br>
+
 Trust is built with consistency.
 
---Lincoln Chafee
+<br>
+
+&emsp; &emsp; —Lincoln Chafee
 
 </div>
