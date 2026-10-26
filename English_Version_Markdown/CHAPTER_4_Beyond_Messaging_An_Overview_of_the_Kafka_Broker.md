@@ -39,6 +39,7 @@ There are a few implications to this log-structured approach. If a service has s
 
 <br>
 
+
 ## Linear Scalability
 
 As we’ve discussed, logs provide a hardware-sympathetic data structure for messaging workloads, but Kafka is really many logs, spanning many different machines. The system ties these together, routing messages reliably, replicating for fault tolerance, and handling failure gracefully.

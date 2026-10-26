@@ -8,7 +8,7 @@ But when we step into a world of many independent services, things start to chan
 
 This is a well-known problem, and there are a number of solutions. One is to ensure each individual service has a significantly higher SLA than your system as a whole. Google provides a protocol for doing this. An alternative is to simply break down the synchronous ties that bind services together using (a) asynchronicity and (b) a message broker as an intermediary.
 
-Say you are working in online retail. You would probably find that synchronous interfaces like ```getImage()``` or ```processOrder()```—calls that expect an immediate response—feel natural and familiar. But when a user clicks Buy, they actually trigger a large, complex, and asynchronous process into action. This process takes a purchase and physically ships it to the user’s door, way beyond the context of the original button click. So splitting software into asynchronous flows allows us to compartmentalize the different problems we need to solve and embrace a world that is itself inherently asynchronous.
+Say you are working in online retail. You would probably find that synchronous interfaces like `getImage()` or `processOrder()`—calls that expect an immediate response—feel natural and familiar. But when a user clicks Buy, they actually trigger a large, complex, and asynchronous process into action. This process takes a purchase and physically ships it to the user’s door, way beyond the context of the original button click. So splitting software into asynchronous flows allows us to compartmentalize the different problems we need to solve and embrace a world that is itself inherently asynchronous.
 
 In practice we tend to embrace this automatically. We’ve all found ourselves polling database tables for changes, or implementing some kind of scheduled cron job to churn through updates. These are simple ways to break the ties of synchronicity, but they always feel like a bit of a hack. There is a good reason for this: they probably are.
 
@@ -26,19 +26,19 @@ The three mechanisms through which services interact can be described as follows
 *Commands*  
 Commands are actions—requests for some operation to be performed by another service, something that will change the state of the system. Commands execute synchronously and typically indicate completion, although they may also include a result.1
 
-- Example: ```processPayment()```, returning whether the payment succeeded.
+- Example: `processPayment()`, returning whether the payment succeeded.
 - When to use: On operations that must complete synchronously, or when using orchestration or a process manager. Consider restricting the use of commands to inside a bounded context.
 
 *Events*  
 Events are both a fact and a notification. They represent something that *happened* in the real world but include no expectation of any future action. They travel in only one direction and expect no response (sometimes called “fire and forget”), but one may be “synthesized” from a subsequent event.
 
-- Example: ```OrderCreated{Widget}```, ```CustomerDetailsUpdated{Customer}```
+- Example: `OrderCreated{Widget}`, `CustomerDetailsUpdated{Customer}`
 - When to use: When loose coupling is important (e.g., in multiteam systems), where the event stream is useful to more than one service, or where data must be replicated from one application to another. Events also lend themselves to concurrent execution.
 
 *Queries*  
 Queries are a request to look something up. Unlike events or commands, queries are free of side effects; they leave the state of the system unchanged.
 
-- Example: ```getOrder(ID=42) returns Order(42,…)```.
+- Example: `getOrder(ID=42) returns Order(42,…)`.
 - When to use: For lightweight data retrieval across service boundaries, or heavyweight data retrieval within service boundaries.
 
 <br>
@@ -115,7 +115,6 @@ On the other hand, request-driven approaches are more tightly coupled as functio
 
 All significantly sized businesses have core datasets that many programs need. If you are sending a user an email, you need their address; if you’re building a sales report, you need sales figures; and so on. Data is something applications cannot do without, and there is no way to code around not having the data (while you might, for example, code around not having access to some piece of functionality). So pretty much all business systems, in larger organizations, need a base level of *essential data coupling*.
 
-
 <table>
     <tr>
         <td>
@@ -167,7 +166,7 @@ The same flow can be built with an event-driven approach (Figure 5-4), where the
 
 If we look closely at Figure 5-4, the interaction between the orders service and the shipping service hasn’t changed all that much, other than that they communicate via events rather than calling each other directly. But there is an important change: the orders service has no knowledge that the shipping service exists. It just raises an event denoting that it did its job and an order was created. The shipping service now has control over whether it partakes in the interaction. This is an example of receiver-driven routing: logic for routing is located at the receiver of the events, rather than at the sender. The burden of responsibility is flipped! This reduces coupling and adds a useful level of pluggability to the system.
 
-Pluggability becomes increasingly important as systems get more complex. Say we decide to extend our system by adding a repricing service, which updates the price of goods in real time, tweaking a product’s price based on supply and demand (Figure 5-5). In a REST- or RPC-based approach we would need to introduce a ```maybeUpdatePrice()``` method, which is called by both the orders service and the payment service. But in the event-driven model, repricing is just a service that plugs into the event streams for orders and payments, sending out price updates when relevant criteria are met.
+Pluggability becomes increasingly important as systems get more complex. Say we decide to extend our system by adding a repricing service, which updates the price of goods in real time, tweaking a product’s price based on supply and demand (Figure 5-5). In a REST- or RPC-based approach we would need to introduce a `maybeUpdatePrice()` method, which is called by both the orders service and the payment service. But in the event-driven model, repricing is just a service that plugs into the event streams for orders and payments, sending out price updates when relevant criteria are met.
 
 <div align="center">
 
@@ -244,7 +243,7 @@ In Figure 5-7 each circle represents an event. The color of the circle designate
 
 The lack of any one point of central control means systems like these are often termed *choreographies*: each service handles some subset of state transitions, which, when put together, describe the whole business process. This can be contrasted with *orchestration*, where a single process commands and controls the whole workflow from one place—for example, via a process manager.5 A process manager is implemented with request-response.
 
-Choreographed systems have the advantage that they are pluggable. If the payment service decides to create three new event types for the payment part of the workflow, so long as the Payment ```Processed``` event remains, it can do so without affecting any other service. This is useful because it means if you’re implementing a service, you can change the way you work and no other services need to know or care about it. By contrast, in an orchestrated system, where a single service dictates the workflow, all changes need to be made in the controller. Which of these approaches is best for you is quite dependent on use case, but the advantage of orchestration is that the whole workflow is written down, in code, in one place. That makes it easy to reason about the system. The downside is that the model is tightly coupled to the controller, so broadly speaking choreographed approaches better suit larger implementations (particularly those that span teams and hence change independently of one another).
+Choreographed systems have the advantage that they are pluggable. If the payment service decides to create three new event types for the payment part of the workflow, so long as the Payment `Processed` event remains, it can do so without affecting any other service. This is useful because it means if you’re implementing a service, you can change the way you work and no other services need to know or care about it. By contrast, in an orchestrated system, where a single service dictates the workflow, all changes need to be made in the controller. Which of these approaches is best for you is quite dependent on use case, but the advantage of orchestration is that the whole workflow is written down, in code, in one place. That makes it easy to reason about the system. The downside is that the model is tightly coupled to the controller, so broadly speaking choreographed approaches better suit larger implementations (particularly those that span teams and hence change independently of one another).
 
 <table>
     <tr>
@@ -252,7 +251,7 @@ Choreographed systems have the advantage that they are pluggable. If the payment
             <img src="../images/note.png" width="70">
         </td>
         <td>
-            The events service’s share form a journal, or “shared narrative,” describing exactly how your business evolved over time
+            The events service’s share form a journal, or “shared narrative,” describing exactly how your business evolved over time.
         </td>
     </tr>
 </table>

@@ -115,7 +115,7 @@ Stateful stream processing systems like Kafka Streams avoid remote transactions 
 
 Partitioning in Kafka Streams works by rerouting messages so that all the state required for one particular computation is sent to a single thread, where the computation can be performed.3 The approach is inherently parallel, which is how streaming systems achieve such high message-at-a-time processing rates (for example, in the use case discussed in Chapter 2). But the approach works only if there is a logical key that cleanly segregates all operations: both state that they need, and state they operate on.
 
-So splitting (i.e., partitioning) the problem by ```ProductId``` ensures that all operations for one ```ProductId``` will be sequentially executed on the same thread. That means all iPads will be processed on one thread, all iWatches will be processed on one (potentially different) thread, and the two will require no coordination between each other to perform the critical section (Figure 15-5). The resulting operation is atomic (thanks to Kafka’s transactions), can be scaled out horizontally, and requires no expensive cross-network coordination. (This is similar to the Map phase in MapReduce systems.)
+So splitting (i.e., partitioning) the problem by `ProductId` ensures that all operations for one `ProductId` will be sequentially executed on the same thread. That means all iPads will be processed on one thread, all iWatches will be processed on one (potentially different) thread, and the two will require no coordination between each other to perform the critical section (Figure 15-5). The resulting operation is atomic (thanks to Kafka’s transactions), can be scaled out horizontally, and requires no expensive cross-network coordination. (This is similar to the Map phase in MapReduce systems.)
 
 <div align="center">
 
@@ -125,7 +125,7 @@ So splitting (i.e., partitioning) the problem by ```ProductId``` ensures that al
 
 </div>
 
-The inventory service must rearrange orders so they are processed by ProductId. This is done with an operation called a *rekey*, which pushes orders into a new intermediary topic in Kafka, this time keyed by ```ProductId```, and then back out to the inventory service. The code is very simple:
+The inventory service must rearrange orders so they are processed by `ProductId`. This is done with an operation called a *rekey*, which pushes orders into a new intermediary topic in Kafka, this time keyed by `ProductId`, and then back out to the inventory service. The code is very simple:
 
 ```
     orders.selectKey((id, order) -> order.getProduct())//rekey by ProductId
@@ -151,11 +151,11 @@ Writing to the store also partakes in Kafka’s transactions, discussed in Chapt
 
 ## Rekey to Join
 
-We can apply exactly the same technique used in the previous section, for partitioning writes, to partitioning reads (e.g., to do a join). Say we want to join a stream of orders (keyed by ```OrderId```) to a table of warehouse inventory (keyed by ```ProductId```), as we do in Figure 15-3. The join will have to use the ```ProductId```.
+We can apply exactly the same technique used in the previous section, for partitioning writes, to partitioning reads (e.g., to do a join). Say we want to join a stream of orders (keyed by `OrderId`) to a table of warehouse inventory (keyed by `ProductId`), as we do in Figure 15-3. The join will have to use the `ProductId`.
  
-This is what would be termed a foreign key relationship in relational parlance, mapping from ```WarehouseInventory.ProductId``` (its primary key) onto ```Order.ProductId``` (which isn’t its primary key). To do this, we need to shuffle orders across the different nodes so that the orders end up being processed in the same thread that has the corresponding warehouse inventory assigned.
+This is what would be termed a foreign key relationship in relational parlance, mapping from `WarehouseInventory.ProductId` (its primary key) onto `Order.ProductId` (which isn’t its primary key). To do this, we need to shuffle orders across the different nodes so that the orders end up being processed in the same thread that has the corresponding warehouse inventory assigned.
 
-As mentioned earlier, this data redistribution step is called a *rekey*, and data arranged in this way is termed co-partitioned. Once rekeyed, the join condition can be performed without any additional network access required. For example, in Figure 15-6, inventory with ```productId=5``` is collocated with orders for ```productId=5```.
+As mentioned earlier, this data redistribution step is called a *rekey*, and data arranged in this way is termed co-partitioned. Once rekeyed, the join condition can be performed without any additional network access required. For example, in Figure 15-6, inventory with `productId=5` is collocated with orders for `productId=5`.
 
 <div align="center">
 
@@ -168,7 +168,7 @@ As mentioned earlier, this data redistribution step is called a *rekey*, and dat
 
 ## Repartitioning and Staged Execution
 
-Real-world systems are often more complex. One minute we’re performing a join, the next we’re aggregating by customer or materializing data in a view, with each operation requiring a different data distribution profile. Different operations like these chain together in a pipeline. The inventory service provides a good example of this. It uses a rekey operation to distribute data by ```ProductId```. Once complete, it has to be rekeyed back to ```OrderId``` so it can be added to the Orders view (Figure 15-7). (The Orders view is destructive—that is, old versions of an order will be replaced by newer ones—so it’s important that the stream be keyed by ```OrderId``` so that no data is lost.)
+Real-world systems are often more complex. One minute we’re performing a join, the next we’re aggregating by customer or materializing data in a view, with each operation requiring a different data distribution profile. Different operations like these chain together in a pipeline. The inventory service provides a good example of this. It uses a rekey operation to distribute data by `ProductId`. Once complete, it has to be rekeyed back to `OrderId` so it can be added to the Orders view (Figure 15-7). (The Orders view is destructive—that is, old versions of an order will be replaced by newer ones—so it’s important that the stream be keyed by `OrderId` so that no data is lost.)
 
 <div align="center">
 
@@ -178,14 +178,14 @@ Real-world systems are often more complex. One minute we’re performing a join,
 
 </div>
 
-There are limitations to this approach, though. The *keys used to partition the event streams must be invariant if ordering is to be guaranteed*. So in this particular case it means the keys, ```ProductId``` and ```OrderId```, on each order must remain fixed across all messages that relate to that order. Typically, this is a fairly easy thing to manage at a domain level (for example, by enforcing that, should a user want to change the product they are purchasing, a brand new order must be created).
+There are limitations to this approach, though. The *keys used to partition the event streams must be invariant if ordering is to be guaranteed*. So in this particular case it means the keys, `ProductId` and `OrderId`, on each order must remain fixed across all messages that relate to that order. Typically, this is a fairly easy thing to manage at a domain level (for example, by enforcing that, should a user want to change the product they are purchasing, a brand new order must be created).
 
 
 ## Waiting for N Events
 
 Another relatively common use case in business systems is to wait for *N* events to occur. This is trivial if each event is located in a different topic—it’s simply a three-way join—but if events arrive on a single topic, it requires a little more thought.
 
-The orders service, in the example discussed earlier in this chapter (Figure 15-1), waits for validation results from each of the three validation services, all sent via the same topic. Validation succeeds holistically only if all three return a ```PASS```. Assuming you are counting messages with a certain key, the solution takes the form:
+The orders service, in the example discussed earlier in this chapter (Figure 15-1), waits for validation results from each of the three validation services, all sent via the same topic. Validation succeeds holistically only if all three return a `PASS`. Assuming you are counting messages with a certain key, the solution takes the form:
 
 1. Group by the key.
 2. Count occurrences of each key (using an aggregator executed with a window).
@@ -210,7 +210,7 @@ In this final section we take a brief look at a larger ecosystem (Figure 15-8) t
 </div>
 
 *Basket writer/view*  
-These represent an implementation of CQRS, as discussed in “Command Query Responsibility Segregation” on page 61 in Chapter 7. The Basket writer proxies HTTP requests, forwarding them to the Basket topic in Kafka when a user adds a new item. The Confluent REST proxy (which ships with the Confluent distribution of Kafka) is used for this. The Basket view is an event-sourced view, implemented in Kafka Streams, with the contents of its state stores exposed over a REST interface in a manner similar to the orders service in the example discussed earlier in this chapter (Kafka Connect and a database could be substituted also). The view represents a join between User and Basket topics, but much of the information is thrown away, retaining only the bare minimum: ```userId → List[product]```. This minimizes the view’s footprint.
+These represent an implementation of CQRS, as discussed in “Command Query Responsibility Segregation” on page 61 in Chapter 7. The Basket writer proxies HTTP requests, forwarding them to the Basket topic in Kafka when a user adds a new item. The Confluent REST proxy (which ships with the Confluent distribution of Kafka) is used for this. The Basket view is an event-sourced view, implemented in Kafka Streams, with the contents of its state stores exposed over a REST interface in a manner similar to the orders service in the example discussed earlier in this chapter (Kafka Connect and a database could be substituted also). The view represents a join between User and Basket topics, but much of the information is thrown away, retaining only the bare minimum: `userId → List[product]`. This minimizes the view’s footprint.
 
 *The Catalogue Filter view*  
 This is another event-sourced view but requires richer support for pagination, so the implementation uses Kafka Connect and Cassandra.

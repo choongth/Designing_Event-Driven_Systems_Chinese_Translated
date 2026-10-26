@@ -21,7 +21,6 @@ Today, issues like these have been largely solved within as-a-service cultures t
 
 Streaming encourages a similar approach, but for data. Event-sourced views are kept lean and can be rederived from the log in a deterministic way. The view could be a cache, a Kafka Streams state store, or a full-blown database. But for this to work, we need to deal with a problem. Loading data can be quite slow. In the next section we look at ways to keep this manageable.
 
-
 <div align="center">
 
 ![Local Image](../images/chapter_10/image1.png)

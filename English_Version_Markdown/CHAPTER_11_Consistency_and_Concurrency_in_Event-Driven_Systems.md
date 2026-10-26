@@ -163,7 +163,7 @@ But transactions provide a very interesting and powerful feature to Kafka Stream
 
 The notion of identity is hugely important in business systems, yet it is often overlooked. For example, to detect duplicates, messages need to be uniquely identified, as we discussed in Chapter 12. Identity is also important for handling the potential for updates to be made at the same time, by implementing optimistic concurrency control.
 
-The basic premise of identity is that it should correlate with the real world: an order has an OrderId, a payment has a ```PaymentId```, and so on. If that entity is logically mutable (for example, an order that has several states, ```Created```, ```Validated```, etc., or a customer whose email address might be updated), then it should have a version identifier also:
+The basic premise of identity is that it should correlate with the real world: an order has an `OrderId`, a payment has a `PaymentId`, and so on. If that entity is logically mutable (for example, an order that has several states, `Created`, `Validated`, etc., or a customer whose email address might be updated), then it should have a version identifier also:
 
 ```
     "Consumer" {
@@ -209,6 +209,5 @@ When we discuss “Scaling Concurrent Operations in Streaming Systems” on page
 4 *See http://bit.ly/deds-end-of-an-era* and *http://bit.ly/deds-volt*.
 
 5 See *https://thght.works/2IUS1zS* and *https://thght.works/2GdFYMq*.
-
 
 </div>

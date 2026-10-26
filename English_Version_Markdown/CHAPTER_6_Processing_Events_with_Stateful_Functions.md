@@ -114,11 +114,11 @@ This final point is particularly important for the increasingly data-centric sys
 
 In a traditional, stateless model, each row on the screen would require a call to all three services. This would be sluggish in practice, so caching would likely be added, along with some hand-crafted polling mechanism to keep the cache up to date.
 
-But in the streaming approach, data is constantly pushed into the UI (Figure 6-5). So you might define a query for the data displayed in the grid, something like ```select * from orders, payments, customers where…```. The API executes it over the incoming event streams, stores the result locally, and keeps it up to date. So streaming behaves a bit like a decoratively defined cache.
+But in the streaming approach, data is constantly pushed into the UI (Figure 6-5). So you might define a query for the data displayed in the grid, something like `select * from orders, payments, customers where…`. The API executes it over the incoming event streams, stores the result locally, and keeps it up to date. So streaming behaves a bit like a decoratively defined cache.
 
 <div align="center">
 
-![Local Image](../images/chapter_6/image4.png)
+![Local Image](../images/chapter_6/image5.png)
 
 *Figure 6-5. Stateful stream processing is used to materialize data inside a web server so that the UI can access it locally for better performance, in this case via a scrollable grid*
 
